@@ -1,8 +1,12 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+var morgan = require('morgan') 
+var cors = require('cors');
 const app = express();
 
-app.use(express.json());
+app.use(morgan('tiny')) // 打印日志
+app.use(express.json()); // 解析 req 的 body
+app.use(cors()); // 允许跨域
 
 let notes = [
   {
@@ -25,28 +29,6 @@ let notes = [
   }
 ]
 
-let persons = [
-  {
-    id: 1,
-    name: 'A',
-    number: '040-123456',
-  },
-  {
-    id: 2,
-    name: 'B',
-    number: '041-123456',
-  },
-  {
-    id: 3,
-    name: 'C',
-    number: '042-123456',
-  },
-  {
-    id: 4,
-    name: 'D',
-    number: '043-123456',
-  },
-]
 
 
 app.get('/', (req, res) => {
@@ -92,27 +74,11 @@ app.post('/api/notes', (req, res) => {
   res.json(note);
 });
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons);
-});
+const unkonwnEndpoint = (req, res, next) => {
+  res.status(404).send('api 404');
+}
 
-app.get('/api/info', (req, res) => {
-  res.send(`phone has info for ${persons.length} ${Date.now()}`)
-})
-
-app.get('/api/person/:id', (req, res) => {
-  const id = req.params.id;
-
-  const person = persons.find(i => i.id == id);
-
-  if(!person) {
-    res.status(404).send('missing person');
-
-    return;
-  }
-
-  res.json(person)
-})
+app.use(unkonwnEndpoint);
 
 
 const PORT = 3001;
